@@ -19,6 +19,7 @@ from .pdfcolor import PDFColorSpace
 from .pdffont import PDFFont
 from .pdfinterp import Color
 from .pdfinterp import PDFGraphicState
+from .pdfinterp import PDFTextState
 from .pdftypes import PDFStream
 from .utils import INF, PathSegment
 from .utils import LTComponentT
@@ -32,6 +33,7 @@ from .utils import fsplit
 from .utils import get_bound
 from .utils import matrix2str
 from .utils import uniq
+from .utils import is_bold
 
 logger = logging.getLogger(__name__)
 
@@ -369,6 +371,7 @@ class LTChar(LTComponent, LTText):
         textdisp: Union[float, Tuple[Optional[float], float]],
         ncs: PDFColorSpace,
         graphicstate: PDFGraphicState,
+        textstate: PDFTextState
     ) -> None:
         LTText.__init__(self)
         self._text = text
@@ -377,6 +380,8 @@ class LTChar(LTComponent, LTText):
         self.ncs = ncs
         self.graphicstate = graphicstate
         self.adv = textwidth * fontsize * scaling
+        self.bold = is_bold(self.fontname, textstate.render)
+
         # compute the boundary rectangle.
         if font.is_vertical():
             # vertical
