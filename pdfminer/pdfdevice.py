@@ -161,7 +161,7 @@ class PDFTextDevice(PDFDevice):
         dxscale: float,
         ncs: PDFColorSpace,
         graphicstate: "PDFGraphicState",
-        textstate: PDFTextState, # 수정 부분
+        textstate: "PDFTextState", # 수정 부분
     ) -> Point:
         (x, y) = pos
         needcharspace = False
