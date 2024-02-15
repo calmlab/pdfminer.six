@@ -381,7 +381,7 @@ class LTChar(LTComponent, LTText):
         self.graphicstate = graphicstate
         self.adv = textwidth * fontsize * scaling
         self.bold = is_bold(self.fontname, textstate.render)
-
+                
         # compute the boundary rectangle.
         if font.is_vertical():
             # vertical
@@ -400,6 +400,8 @@ class LTChar(LTComponent, LTText):
             bbox_upper_right = (self.adv, rise + fontsize)
             
         (a, b, c, d, e, f) = self.matrix
+        if b == 0 and c != 0: # 좌 혹은 우로 기울어져 있는 경우 배제
+            self.matrix = (a, b, 0, d, e, f)
         self.upright = 0 < a * d * scaling and b * c <= 0
         (x0, y0) = apply_matrix_pt(self.matrix, bbox_lower_left)
         (x1, y1) = apply_matrix_pt(self.matrix, bbox_upper_right)
