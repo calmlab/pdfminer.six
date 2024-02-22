@@ -805,7 +805,7 @@ def format_int_alpha(value: int) -> str:
 
 
 def is_bold(fontname: str, render_state: bool) -> bool:
-    if type(fontname) != 'str': 
+    if isinstance(fontname, 'str'): 
         if 'bold' in fontname or 'Bold' in fontname: # 폰트 이름으로 찾기
             return True
         else:
