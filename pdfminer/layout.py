@@ -19,6 +19,7 @@ from .pdfcolor import PDFColorSpace
 from .pdffont import PDFFont
 from .pdfinterp import Color
 from .pdfinterp import PDFGraphicState
+from .pdfinterp import PDFTextState
 from .pdftypes import PDFStream
 from .utils import INF, PathSegment
 from .utils import LTComponentT
@@ -32,6 +33,7 @@ from .utils import fsplit
 from .utils import get_bound
 from .utils import matrix2str
 from .utils import uniq
+from .utils import is_bold
 
 logger = logging.getLogger(__name__)
 
@@ -369,6 +371,7 @@ class LTChar(LTComponent, LTText):
         textdisp: Union[float, Tuple[Optional[float], float]],
         ncs: PDFColorSpace,
         graphicstate: PDFGraphicState,
+        textstate: PDFTextState
     ) -> None:
         LTText.__init__(self)
         self._text = text
@@ -377,6 +380,8 @@ class LTChar(LTComponent, LTText):
         self.ncs = ncs
         self.graphicstate = graphicstate
         self.adv = textwidth * fontsize * scaling
+        self.bold = is_bold(self.fontname, textstate.render)
+                
         # compute the boundary rectangle.
         if font.is_vertical():
             # vertical
@@ -391,10 +396,12 @@ class LTChar(LTComponent, LTText):
             bbox_upper_right = (-vx + fontsize, vy + rise)
         else:
             # horizontal
-            descent = font.get_descent() * fontsize
-            bbox_lower_left = (0, descent + rise)
-            bbox_upper_right = (self.adv, descent + rise + fontsize)
+            bbox_lower_left = (0, rise)
+            bbox_upper_right = (self.adv, rise + fontsize)
+            
         (a, b, c, d, e, f) = self.matrix
+        if b == 0 and c != 0: # 좌 혹은 우로 기울어져 있는 경우 배제
+            self.matrix = (a, b, 0, d, e, f)
         self.upright = 0 < a * d * scaling and b * c <= 0
         (x0, y0) = apply_matrix_pt(self.matrix, bbox_lower_left)
         (x1, y1) = apply_matrix_pt(self.matrix, bbox_upper_right)

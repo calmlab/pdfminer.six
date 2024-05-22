@@ -38,7 +38,7 @@ from .layout import LTTextLine
 from .pdfdevice import PDFTextDevice
 from .pdffont import PDFFont
 from .pdffont import PDFUnicodeNotDefined
-from .pdfinterp import PDFGraphicState, PDFResourceManager
+from .pdfinterp import PDFGraphicState, PDFResourceManager, PDFTextState # 으로 수정
 from .pdfpage import PDFPage
 from .pdftypes import PDFStream
 from .utils import AnyIO, Point, Matrix, Rect, PathSegment, make_compat_str
@@ -227,6 +227,7 @@ class PDFLayoutAnalyzer(PDFTextDevice):
         cid: int,
         ncs: PDFColorSpace,
         graphicstate: PDFGraphicState,
+        textstate: PDFTextState
     ) -> float:
         try:
             text = font.to_unichr(cid)
@@ -246,6 +247,7 @@ class PDFLayoutAnalyzer(PDFTextDevice):
             textdisp,
             ncs,
             graphicstate,
+            textstate
         )
         self.cur_item.add(item)
         return item.adv

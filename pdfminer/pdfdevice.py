@@ -128,6 +128,7 @@ class PDFTextDevice(PDFDevice):
                 dxscale,
                 ncs,
                 graphicstate,
+                textstate
             )
         else:
             textstate.linematrix = self.render_string_horizontal(
@@ -143,6 +144,7 @@ class PDFTextDevice(PDFDevice):
                 dxscale,
                 ncs,
                 graphicstate,
+                textstate
             )
 
     def render_string_horizontal(
@@ -159,17 +161,14 @@ class PDFTextDevice(PDFDevice):
         dxscale: float,
         ncs: PDFColorSpace,
         graphicstate: "PDFGraphicState",
+        textstate: "PDFTextState", # 수정 부분
     ) -> Point:
         (x, y) = pos
-        needcharspace = False
         for obj in seq:
             if isinstance(obj, (int, float)):
                 x -= obj * dxscale
-                needcharspace = True
             else:
                 for cid in font.decode(obj):
-                    if needcharspace:
-                        x += charspace
                     x += self.render_char(
                         utils.translate_matrix(matrix, (x, y)),
                         font,
@@ -179,10 +178,11 @@ class PDFTextDevice(PDFDevice):
                         cid,
                         ncs,
                         graphicstate,
+                        textstate, # 수정 부분
                     )
                     if cid == 32 and wordspace:
                         x += wordspace
-                    needcharspace = True
+                    x += charspace
         return (x, y)
 
     def render_string_vertical(
@@ -199,6 +199,7 @@ class PDFTextDevice(PDFDevice):
         dxscale: float,
         ncs: PDFColorSpace,
         graphicstate: "PDFGraphicState",
+        textstate: "PDFTextState", # 수정 부분
     ) -> Point:
         (x, y) = pos
         needcharspace = False
@@ -208,8 +209,6 @@ class PDFTextDevice(PDFDevice):
                 needcharspace = True
             else:
                 for cid in font.decode(obj):
-                    if needcharspace:
-                        y += charspace
                     y += self.render_char(
                         utils.translate_matrix(matrix, (x, y)),
                         font,
@@ -219,9 +218,11 @@ class PDFTextDevice(PDFDevice):
                         cid,
                         ncs,
                         graphicstate,
+                        textstate, # 수정 부분
                     )
                     if cid == 32 and wordspace:
                         y += wordspace
+                    y += charspace
                     needcharspace = True
         return (x, y)
 
